@@ -1,22 +1,68 @@
-import React from "react"
-import { Link } from "gatsby"
+import React from "react";
+import { graphql, useStaticQuery } from "gatsby";
+import Layout from "../components/layout";
+import ArticlesComponent from "../components/articles";
+import "../assets/css/main.css";
 
-import Layout from "../components/layout"
-import Image from "../components/image"
-import SEO from "../components/seo"
+const IndexPage = () => {
+  const data = useStaticQuery(query);
 
-const IndexPage = () => (
-  <Layout>
-    <SEO title="Home" />
-    <h1>Hi people</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
-      <Image />
-    </div>
-    <Link to="/page-2/">Go to page 2</Link> <br />
-    <Link to="/using-typescript/">Go to "Using TypeScript"</Link>
-  </Layout>
-)
+  return (
+    <Layout seo={data.strapiHomepage.seo}>
+      <div className="uk-section">
+        <div className="uk-container uk-container-large">
+          <h1>{data.strapiHomepage.hero.title}</h1>
+          <ArticlesComponent articles={data.allStrapiArticle.edges} />
+        </div>
+      </div>
+    </Layout>
+  );
+};
 
-export default IndexPage
+const query = graphql`
+  query {
+    strapiHomepage {
+      hero {
+        title
+      }
+      seo {
+        metaTitle
+        metaDescription
+        shareImage {
+          publicURL
+        }
+      }
+    }
+    allStrapiArticle(filter: { status: { eq: "published" } }) {
+      edges {
+        node {
+          strapiId
+          slug
+          title
+          category {
+            name
+          }
+          image {
+            childImageSharp {
+              fixed(width: 800, height: 500) {
+                src
+              }
+            }
+          }
+          author {
+            name
+            picture {
+              childImageSharp {
+                fixed(width: 30, height: 30) {
+                  src
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export default IndexPage;
